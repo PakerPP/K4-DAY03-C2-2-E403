@@ -18,10 +18,7 @@
 
 ---
 
-## 🔍 2. SO SÁNH PHẢN HỒI (MỐC 2 & 3 — 5 TEST CASES)
-
-**Baseline**: GeminiProvider · **Ngày chạy**: 2026-07-28 · Nguồn: `python src/app.py` (Role 4 lắp `run_baseline_chatbot()`).
-**ReAct Agent**: OpenAIProvider (model `gpt-4o`) · **Ngày chạy**: 2026-07-28 · `MAX_ITERATIONS = 5` · Nguồn: `python src/app.py` (Role 4 lắp vòng lặp `run_react_agent()` có parser Action/Action Input + Guardrails).
+## 🔍 2. SO SÁNH PHẢN HỒI
 
 ### Test Case #1 | 🟢 Đơn giản (Chỉ cần LLM)
 
