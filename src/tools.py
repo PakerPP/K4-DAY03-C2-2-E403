@@ -63,7 +63,7 @@ def get_expense_policy(expense_type: str) -> str:
             "Cần cung cấp vé hoặc hóa đơn."
         ),
         "khách sạn": (
-            "Chi phí khách sạn: Tối đa 1.200.000 VNĐ/đêm. "
+            "Chi phí khách sạn: Tối đa 1.200.000 VNĐ/lần đặt phòng. "
             "Cần có hóa đơn và thông tin chuyến công tác."
         ),
         "văn phòng phẩm": (

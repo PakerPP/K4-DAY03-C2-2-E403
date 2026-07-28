@@ -38,7 +38,7 @@ Hãy trả lời bằng tiếng Việt, rõ ràng, thân thiện và ngắn gọ
 
 
 # Phanh an toàn cho vòng lặp ReAct. Agent không được thực hiện quá số bước này.
-MAX_ITERATIONS = 3
+MAX_ITERATIONS = 5
 
 
 REACT_SYSTEM_PROMPT = """
