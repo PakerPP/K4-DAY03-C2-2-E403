@@ -26,6 +26,52 @@ def _positive_amount(value, field_name: str = "Số tiền"):
     return float(value), None
 
 
+EXPENSE_TYPE_ALIASES = {
+    # Ăn uống
+    "meal": "ăn uống",
+    "meals": "ăn uống",
+    "food": "ăn uống",
+    "food and beverage": "ăn uống",
+    "dining": "ăn uống",
+    "tiếp khách": "ăn uống",
+    # Di chuyển
+    "transport": "di chuyển",
+    "transportation": "di chuyển",
+    "travel": "di chuyển",
+    "taxi": "di chuyển",
+    "đi lại": "di chuyển",
+    # Khách sạn
+    "hotel": "khách sạn",
+    "accommodation": "khách sạn",
+    "lodging": "khách sạn",
+    "lưu trú": "khách sạn",
+    # Văn phòng phẩm
+    "office supplies": "văn phòng phẩm",
+    "office supply": "văn phòng phẩm",
+    "stationery": "văn phòng phẩm",
+}
+
+
+def _normalize_expense_type(expense_type: str) -> str:
+    """Ánh xạ tên tiếng Anh/từ đồng nghĩa về loại chi phí chuẩn tiếng Việt."""
+    normalized = " ".join(expense_type.lower().strip().split())
+    valid_types = ("ăn uống", "di chuyển", "khách sạn", "văn phòng phẩm")
+
+    for valid_type in valid_types:
+        if valid_type in normalized:
+            return valid_type
+
+    if normalized in EXPENSE_TYPE_ALIASES:
+        return EXPENSE_TYPE_ALIASES[normalized]
+
+    # Hỗ trợ cụm tự nhiên như "hotel booking" hoặc "business travel".
+    for alias in sorted(EXPENSE_TYPE_ALIASES, key=len, reverse=True):
+        if alias in normalized:
+            return EXPENSE_TYPE_ALIASES[alias]
+
+    return normalized
+
+
 def get_expense_policy(expense_type: str) -> str:
     """
     Tra cứu chính sách và hạn mức áp dụng cho một loại chi phí.
@@ -51,7 +97,7 @@ def get_expense_policy(expense_type: str) -> str:
     expense_type, error = _required_text(expense_type, "Loại chi phí")
     if error:
         return error
-    expense_type_lower = expense_type.lower()
+    expense_type_normalized = _normalize_expense_type(expense_type)
 
     policies = {
         "ăn uống": (
@@ -73,7 +119,7 @@ def get_expense_policy(expense_type: str) -> str:
     }
 
     for key, policy in policies.items():
-        if key in expense_type_lower:
+        if key == expense_type_normalized:
             return policy
 
     return (
@@ -321,15 +367,15 @@ def evaluate_expense(
         "văn phòng phẩm": 2_000_000,
     }
 
-    expense_type_lower = expense_type.lower()
+    expense_type_normalized = _normalize_expense_type(expense_type)
 
-    if expense_type_lower not in limits:
+    if expense_type_normalized not in limits:
         return (
             f"CẦN DUYỆT THỦ CÔNG: Không xác định được hạn mức "
             f"cho loại chi phí '{expense_type}'."
         )
 
-    limit = limits[expense_type_lower]
+    limit = limits[expense_type_normalized]
 
     if amount > limit:
         return (
@@ -338,7 +384,7 @@ def evaluate_expense(
         )
 
     return (
-        f"ĐỦ ĐIỀU KIỆN: Khoản chi thuộc loại '{expense_type}', "
+        f"ĐỦ ĐIỀU KIỆN: Khoản chi thuộc loại '{expense_type_normalized}', "
         f"không vượt hạn mức và có mục đích hợp lệ."
     )
 
