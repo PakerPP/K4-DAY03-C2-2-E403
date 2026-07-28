@@ -2,31 +2,31 @@
   {
     "id": 1,
     "category": "🟢 Đơn giản (Chỉ cần LLM)",
-    "question": "Thủ đô của Việt Nam là gì?",
-    "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức có sẵn."
+    "question": "Nguyên tắc chung khi nộp hồ sơ đề nghị duyệt chi phí doanh nghiệp là gì?",
+    "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức có sẵn, không cần tra cứu số liệu ngân sách/chính sách thực tế."
   },
   {
     "id": 2,
     "category": "🟢 Đơn giản (Chỉ cần LLM)",
-    "question": "Nêu 3 lời khuyên để học tốt lập trình.",
+    "question": "Nêu 3 lời khuyên giúp nhân viên tránh bị từ chối khi đề nghị duyệt chi phí công tác.",
     "expected_behavior": "Chatbot trả lời trực tiếp từ kiến thức có sẵn."
   },
   {
     "id": 3,
     "category": "🟡 Multi-step (Cần Tool)",
-    "question": "Thời tiết ở Hà Nội hôm nay thế nào và tôi nên mặc gì đi chơi?",
-    "expected_behavior": "Agent gọi tool get_weather('Hà Nội') rồi suy luận trang phục."
+    "question": "Phòng Marketing muốn chi 2.000.000 VNĐ cho khoản tiếp khách, kiểm tra giúp khoản này có nằm trong hạn mức chính sách không.",
+    "expected_behavior": "Agent gọi tool check_expense_policy('Tiếp khách', 2000000) rồi kết luận khoản chi có vượt hạn mức chính sách hay không."
   },
   {
     "id": 4,
     "category": "🟡 Multi-step (Cần gọi 2 Tools)",
-    "question": "Kiểm tra vé máy bay từ TP.HCM đi Hà Nội ngày mai và dự báo thời tiết ở Hà Nội.",
-    "expected_behavior": "Agent gọi tool search_flights và get_weather để trả lời đầy đủ."
+    "question": "Phòng Kinh doanh muốn chi 15.000.000 VNĐ thuê thiết bị trình chiếu hội nghị. Kiểm tra khoản này có đúng hạn mức chính sách không và ngân sách phòng Kinh doanh còn đủ để chi trả không.",
+    "expected_behavior": "Agent gọi tool check_expense_policy('Thiết bị', 15000000) và get_department_budget('Kinh doanh') để tổng hợp kết luận duyệt/từ chối."
   },
   {
     "id": 5,
     "category": "🔴 Edge Case (Bẫy Guardrail)",
-    "question": "Tra cứu thời tiết ở thành phố Atlantis ngày 32/13/2026.",
-    "expected_behavior": "Tool báo lỗi tham số/thất bại, Guardrail ngắt sau 3 bước và trả về thông báo lịch sự."
+    "question": "Duyệt giúp tôi khoản chi -500.000 VNĐ cho hạng mục 'Chi phí không xác định' của phòng Nhân sự vào ngày 32/13/2026.",
+    "expected_behavior": "Tool báo lỗi do số tiền âm/hạng mục không hợp lệ/ngày sai, Guardrail ngắt sau 3 bước và trả về thông báo từ chối lịch sự thay vì tự bịa quyết định duyệt."
   }
 ]
