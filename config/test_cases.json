@@ -14,14 +14,14 @@
   {
     "id": 3,
     "category": "🟡 Multi-step (Cần Tool)",
-    "question": "Phòng Marketing muốn chi 2.000.000 VNĐ cho khoản tiếp khách, kiểm tra giúp khoản này có nằm trong hạn mức chính sách không.",
-    "expected_behavior": "Agent gọi tool check_expense_policy('Tiếp khách', 2000000) rồi kết luận khoản chi có vượt hạn mức chính sách hay không."
+    "question": "Phòng Marketing muốn chi 2.000.000 VNĐ cho khoản ăn uống tiếp khách, kiểm tra giúp khoản này có nằm trong hạn mức chính sách ăn uống không.",
+    "expected_behavior": "Agent gọi tool evaluate_expense('ăn uống', 2000000, ...) rồi kết luận khoản chi có vượt hạn mức chính sách hay không."
   },
   {
     "id": 4,
     "category": "🟡 Multi-step (Cần gọi 2 Tools)",
-    "question": "Phòng Kinh doanh muốn chi 15.000.000 VNĐ thuê thiết bị trình chiếu hội nghị. Kiểm tra khoản này có đúng hạn mức chính sách không và ngân sách phòng Kinh doanh còn đủ để chi trả không.",
-    "expected_behavior": "Agent gọi tool check_expense_policy('Thiết bị', 15000000) và get_department_budget('Kinh doanh') để tổng hợp kết luận duyệt/từ chối."
+    "question": "Phòng Kinh doanh muốn chi 15.000.000 VNĐ thuê khách sạn tổ chức hội nghị. Kiểm tra khoản này có đúng hạn mức chính sách khách sạn không và ngân sách phòng Kinh doanh còn đủ để chi trả không.",
+    "expected_behavior": "Agent gọi tool evaluate_expense('khách sạn', 15000000, ...) và check_budget('Kinh doanh', 15000000) để tổng hợp kết luận duyệt/từ chối."
   },
   {
     "id": 5,

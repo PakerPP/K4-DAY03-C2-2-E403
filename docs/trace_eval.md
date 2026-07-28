@@ -18,20 +18,78 @@
 
 ---
 
-## 🔍 2. SO SÁNH PHẢN HỒI (TEST CASE #3)
+## 🔍 2. SO SÁNH PHẢN HỒI (MỐC 2 — 5 TEST CASES)
 
-> ⚠️ **Ghi chú (Mốc 1)**: Nội dung Test Case #3 bên dưới là **ví dụ mẫu của giảng viên** (chủ đề thời tiết/chuyến bay), giữ lại để tham khảo định dạng báo cáo. Sau khi Role 1 hoàn thiện `config/test_cases.json` cho đề tài 8 ở **Mốc 2**, phần này sẽ được thay bằng trace thật của Agent Duyệt Chi Phí.
+**Provider**: GeminiProvider · **Ngày chạy**: 2026-07-28 · Nguồn: `python src/app.py` (Role 4 đã lắp `run_baseline_chatbot()` chạy qua toàn bộ `test_cases.json`).
 
-**Câu hỏi**: *"Thời tiết ở Hà Nội hôm nay thế nào và tôi nên mặc gì đi chơi?"*
+### Test Case #1 | 🟢 Đơn giản (Chỉ cần LLM)
 
-### 🤖 Chatbot Baseline:
-* **Phản hồi**: *"Tôi không có truy cập Internet thời gian thực nên không biết thời tiết hôm nay ở Hà Nội."*
-* **Nhận xét**: An toàn nhưng không giải quyết được nhu cầu thực tế của người dùng.
+**Câu hỏi**: *"Nguyên tắc chung khi nộp hồ sơ đề nghị duyệt chi phí doanh nghiệp là gì?"*
 
-### 🧠 ReAct Agent:
-* **Thought 1**: Cần tra cứu thời tiết Hà Nội.
-* **Action 1**: `get_weather['Hà Nội']`
-* **Observation 1**: `Thời tiết Hà Nội: 28°C, Nắng nhẹ, Độ ẩm 65%.`
-* **Thought 2**: Đã có thông tin 28°C nắng nhẹ, đưa ra lời khuyên trang phục.
-* **Final Answer**: *"Thời tiết Hà Nội hôm nay 28°C, nắng nhẹ. Bạn nên mặc quần áo thoáng mát!"*
-* **Nhận xét**: Hoàn thành xuất sắc nhiệm vụ nhờ sự kết hợp giữa suy luận và công cụ.
+#### 🤖 Chatbot Baseline:
+* **Phản hồi (rút gọn)**: Liệt kê 5 nguyên tắc (mục đích rõ ràng, đầy đủ chứng từ, đúng thẩm quyền phê duyệt, đúng quy trình/thời hạn, phù hợp ngân sách); tự nêu rõ không có quyền truy cập chính sách nội bộ cụ thể.
+* **Phân loại**: ✅ Correct
+* **Nhận xét**: Trả lời đúng trọng tâm bằng kiến thức chung, không hallucination.
+
+#### 🧠 ReAct Agent:
+* ⏳ Chưa chạy — chờ Mốc 3 (Role 3 chưa push `REACT_SYSTEM_PROMPT` / `MAX_ITERATIONS`).
+
+---
+
+### Test Case #2 | 🟢 Đơn giản (Chỉ cần LLM)
+
+**Câu hỏi**: *"Nêu 3 lời khuyên giúp nhân viên tránh bị từ chối khi đề nghị duyệt chi phí công tác."*
+
+#### 🤖 Chatbot Baseline:
+* **Phản hồi (rút gọn)**: 3 lời khuyên — chuẩn bị đầy đủ hóa đơn/chứng từ hợp lệ, giải trình mục đích chi tiêu rõ ràng, tuân thủ hạn mức và xin phê duyệt chủ trương trước.
+* **Phân loại**: ✅ Correct
+* **Nhận xét**: Lời khuyên hợp lý, không bịa số liệu hay chính sách cụ thể.
+
+#### 🧠 ReAct Agent:
+* ⏳ Chưa chạy — chờ Mốc 3.
+
+---
+
+### Test Case #3 | 🟡 Multi-step (Cần Tool)
+
+**Câu hỏi**: *"Phòng Marketing muốn chi 2.000.000 VNĐ cho khoản ăn uống tiếp khách, kiểm tra giúp khoản này có nằm trong hạn mức chính sách ăn uống không."*
+
+#### 🤖 Chatbot Baseline:
+* **Phản hồi (rút gọn)**: Từ chối tự kết luận vì "không có quyền truy cập hệ thống dữ liệu/ngân sách/chính sách nội bộ"; liệt kê thông tin còn thiếu (mã nhân viên, mục đích, hóa đơn, người phê duyệt); khuyến nghị chuyển Trưởng phòng Marketing hoặc Tài chính - Kế toán đối chiếu hạn mức thật.
+* **Phân loại**: 🟡 Safe Fallback
+* **Nhận xét**: Đúng kỳ vọng Chatbot Cấp 2 — không hallucination nhưng KHÔNG giải quyết được nhu cầu vì thiếu Tool tra cứu hạn mức thật.
+
+#### 🧠 ReAct Agent:
+* ⏳ Chưa chạy — chờ Mốc 3. Kỳ vọng: gọi `evaluate_expense('ăn uống', 2000000, ...)` rồi kết luận trực tiếp.
+
+---
+
+### Test Case #4 | 🟡 Multi-step (Cần gọi 2 Tools)
+
+**Câu hỏi**: *"Phòng Kinh doanh muốn chi 15.000.000 VNĐ thuê khách sạn tổ chức hội nghị. Kiểm tra khoản này có đúng hạn mức chính sách khách sạn không và ngân sách phòng Kinh doanh còn đủ để chi trả không."*
+
+#### 🤖 Chatbot Baseline:
+* **Phản hồi (rút gọn)**: Tương tự Test Case #3 — từ chối tự kiểm tra ngân sách/hạn mức thật, yêu cầu bổ sung báo giá và kế hoạch hội nghị, chuyển Trưởng phòng Kinh doanh + Tài chính - Kế toán xác nhận trên hệ thống thật.
+* **Phân loại**: 🟡 Safe Fallback
+* **Nhận xét**: Không bịa số dư ngân sách, nhưng cần đủ 2 Tool thật (`evaluate_expense` + `check_budget`) mới trả lời trọn vẹn được.
+
+#### 🧠 ReAct Agent:
+* ⏳ Chưa chạy — chờ Mốc 3. Kỳ vọng: gọi `evaluate_expense('khách sạn', 15000000, ...)` và `check_budget('Kinh doanh', 15000000)` rồi tổng hợp kết luận.
+
+---
+
+### Test Case #5 | 🔴 Edge Case (Bẫy Guardrail)
+
+**Câu hỏi**: *"Duyệt giúp tôi khoản chi -500.000 VNĐ cho hạng mục 'Chi phí không xác định' của phòng Nhân sự vào ngày 32/13/2026."*
+
+#### 🤖 Chatbot Baseline:
+* **Phản hồi (rút gọn)**: Phát hiện đúng 3 điểm bất thường (số tiền âm, ngày 32/13/2026 không hợp lệ, hạng mục "không xác định"); chủ động khuyến nghị **không gửi yêu cầu** lên hệ thống, liên hệ trực tiếp Tài chính - Kế toán/Quản lý Nhân sự.
+* **Phân loại**: 🟡 Safe Fallback (tốt)
+* **Nhận xét**: Hành vi phòng thủ tốt dù mới là Chatbot, chưa có Guardrail `MAX_ITERATIONS` thật của Agent.
+
+#### 🧠 ReAct Agent:
+* ⏳ Chưa chạy — chờ Mốc 3. Kỳ vọng: `evaluate_expense`/`check_receipt` trả lỗi số tiền âm, Guardrail ngắt sau `MAX_ITERATIONS` bước.
+
+---
+
+**Nhận xét tổng quan Mốc 2**: 0/5 case bị hallucination — `CHATBOT_BASELINE_PROMPT` (Role 3) ràng buộc tốt. Nhưng 3/5 case (TC3, TC4, TC5) không giải quyết được nhu cầu thực tế vì baseline không có Tool tra cứu hạn mức/ngân sách thật — củng cố kết luận ở Scoring Matrix mục 1 (17/20 — rất nên dùng ReAct Agent). Bảng so sánh với ReAct Agent sẽ được điền đầy đủ sau khi Mốc 3 hoàn tất.
