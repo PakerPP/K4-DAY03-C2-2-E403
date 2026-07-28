@@ -10,6 +10,22 @@ Lưu ý:
 """
 
 
+def _required_text(value, field_name: str):
+    """Chuẩn hóa chuỗi bắt buộc; trả về thông báo lỗi nếu không hợp lệ."""
+    if not isinstance(value, str) or not value.strip():
+        return None, f"LỖI: {field_name} phải là chuỗi không được để trống."
+    return value.strip(), None
+
+
+def _positive_amount(value, field_name: str = "Số tiền"):
+    """Chuẩn hóa số tiền dương và loại trừ bool/NaN/giá trị sai kiểu."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None, f"LỖI: {field_name} phải là một số."
+    if value != value or value <= 0:
+        return None, f"LỖI: {field_name} phải lớn hơn 0."
+    return float(value), None
+
+
 def get_expense_policy(expense_type: str) -> str:
     """
     Tra cứu chính sách và hạn mức áp dụng cho một loại chi phí.
@@ -32,7 +48,10 @@ def get_expense_policy(expense_type: str) -> str:
         - Người dùng nhập tên chi phí không đúng định dạng.
         - Chính sách trong hệ thống chưa được cập nhật.
     """
-    expense_type_lower = expense_type.lower().strip()
+    expense_type, error = _required_text(expense_type, "Loại chi phí")
+    if error:
+        return error
+    expense_type_lower = expense_type.lower()
 
     policies = {
         "ăn uống": (
@@ -91,8 +110,17 @@ def check_receipt(
         - Khoản chi bắt buộc có hóa đơn nhưng không cung cấp.
         - Mã hóa đơn bị nhập sai hoặc không đọc được.
     """
-    if amount <= 0:
-        return "LỖI: Số tiền trên hóa đơn phải lớn hơn 0."
+    amount, error = _positive_amount(amount, "Số tiền trên hóa đơn")
+    if error:
+        return error
+
+    if not isinstance(has_receipt, bool):
+        return "LỖI: Trạng thái hóa đơn phải là true hoặc false."
+
+    if receipt_id is None:
+        receipt_id = ""
+    if not isinstance(receipt_id, str):
+        return "LỖI: Mã hóa đơn phải là chuỗi."
 
     if amount >= 200_000 and not has_receipt:
         return (
@@ -143,10 +171,14 @@ def check_budget(
         "kinh doanh": 25_000_000,
     }
 
-    department_lower = department.lower().strip()
+    department, error = _required_text(department, "Tên phòng ban")
+    if error:
+        return error
+    department_lower = department.lower()
 
-    if requested_amount <= 0:
-        return "LỖI: Số tiền yêu cầu phải lớn hơn 0."
+    requested_amount, error = _positive_amount(requested_amount)
+    if error:
+        return error
 
     if department_lower not in budgets:
         return (
@@ -200,14 +232,17 @@ def detect_duplicate_expense(
         - Không truy cập được lịch sử yêu cầu.
         - Hai khoản chi hợp lệ vô tình có cùng số tiền.
     """
-    if not employee_id.strip():
-        return "LỖI: Thiếu mã nhân viên."
+    employee_id, error = _required_text(employee_id, "Mã nhân viên")
+    if error:
+        return error
 
-    if not receipt_id.strip():
-        return "LỖI: Thiếu mã hóa đơn."
+    receipt_id, error = _required_text(receipt_id, "Mã hóa đơn")
+    if error:
+        return error
 
-    if amount <= 0:
-        return "LỖI: Số tiền yêu cầu phải lớn hơn 0."
+    amount, error = _positive_amount(amount)
+    if error:
+        return error
 
     submitted_expenses = [
         {
@@ -265,11 +300,19 @@ def evaluate_expense(
         - Loại chi phí chưa được định nghĩa.
         - Hạn mức áp dụng khác nhau giữa các phòng ban.
     """
-    if amount <= 0:
-        return "TỪ CHỐI: Số tiền yêu cầu không hợp lệ."
+    expense_type, error = _required_text(expense_type, "Loại chi phí")
+    if error:
+        return error
 
-    if not business_purpose.strip():
-        return "TỪ CHỐI: Chưa cung cấp mục đích sử dụng khoản chi."
+    amount, error = _positive_amount(amount)
+    if error:
+        return error
+
+    business_purpose, error = _required_text(
+        business_purpose, "Mục đích sử dụng"
+    )
+    if error:
+        return error
 
     limits = {
         "ăn uống": 300_000,
@@ -278,7 +321,7 @@ def evaluate_expense(
         "văn phòng phẩm": 2_000_000,
     }
 
-    expense_type_lower = expense_type.lower().strip()
+    expense_type_lower = expense_type.lower()
 
     if expense_type_lower not in limits:
         return (
@@ -329,14 +372,21 @@ def submit_expense_approval(
         - Số tiền không hợp lệ.
         - Hệ thống không thể lưu yêu cầu.
     """
-    if not employee_id.strip():
-        return "LỖI: Thiếu mã nhân viên."
+    employee_id, error = _required_text(employee_id, "Mã nhân viên")
+    if error:
+        return error
 
-    if not approver_id.strip():
-        return "LỖI: Thiếu mã người phê duyệt."
+    expense_type, error = _required_text(expense_type, "Loại chi phí")
+    if error:
+        return error
 
-    if amount <= 0:
-        return "LỖI: Số tiền yêu cầu phải lớn hơn 0."
+    approver_id, error = _required_text(approver_id, "Mã người phê duyệt")
+    if error:
+        return error
+
+    amount, error = _positive_amount(amount)
+    if error:
+        return error
 
     request_id = "EXP-2026-001"
 
@@ -372,10 +422,10 @@ def get_approval_status(request_id: str) -> str:
         "EXP-2026-003": "Đã bị từ chối do thiếu hóa đơn",
     }
 
-    request_id_upper = request_id.upper().strip()
-
-    if not request_id_upper:
-        return "LỖI: Thiếu mã yêu cầu duyệt chi phí."
+    request_id, error = _required_text(request_id, "Mã yêu cầu duyệt chi phí")
+    if error:
+        return error
+    request_id_upper = request_id.upper()
 
     if request_id_upper not in approval_requests:
         return f"LỖI: Không tìm thấy yêu cầu có mã '{request_id}'."
